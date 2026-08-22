@@ -1,0 +1,29 @@
+# PostgreSQL для локальной разработки.
+# Параметры совпадают со строкой подключения по умолчанию в app.py:
+#   postgresql+psycopg://postgres:postgres@localhost:5432/bank
+# Поэтому .env и ручное создание базы не нужны — БД "bank" создаётся сама.
+#
+# Запуск:   docker compose up -d
+# Остановка: docker compose down          (данные сохраняются в томе)
+# Сброс:    docker compose down -v        (удалить данные вместе с томом)
+
+services:
+  db:
+    image: postgres:16
+    container_name: bank-pg
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: bank
+    ports:
+      - "5432:5432"
+    volumes:
+      - bank-pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d bank"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  bank-pgdata:
