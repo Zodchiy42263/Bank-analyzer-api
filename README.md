@@ -14,17 +14,86 @@ Flask + Flask-SQLAlchemy + PostgreSQL (драйвер psycopg 3).
 
 ## Запуск
 
+Нужен **Python 3.10+** и запущенный сервер **PostgreSQL** (проще всего поднять
+через Docker — см. шаг 1).
+
+### 1. База данных через Docker (рекомендуется)
+
+В репозитории есть `docker-compose.yml` с параметрами под строку подключения по
+умолчанию, поэтому база `bank` создаётся сама и `.env` не нужен:
+
+```bash
+docker compose up -d      # поднять PostgreSQL (БД "bank" создаётся автоматически)
+docker ps                 # у контейнера bank-pg статус должен стать healthy
+```
+
+Остановить — `docker compose down`, сбросить данные — `docker compose down -v`.
+(Нужен установленный и запущенный Docker Desktop.)
+
+### 2. Приложение на Windows (PowerShell)
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1   # активировать venv — слева появится "(.venv)"
+pip install -r requirements.txt
+
+python seed.py                 # создаёт таблицы и наполняет данными
+python app.py                  # http://localhost:5000
+```
+
+Если PowerShell откажется выполнять скрипт активации
+(`running scripts is disabled on this system`), разрешите скрипты для текущего
+окна и повторите активацию:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\.venv\Scripts\Activate.ps1
+```
+
+venv активируется только для текущего окна и не сохраняется между окнами — **в
+каждом новом окне** перед `python ...` снова выполняйте
+`.\.venv\Scripts\Activate.ps1` (в том числе там, где запущен `app.py`). В `cmd`
+вместо этого: `.venv\Scripts\activate.bat`.
+
+### 3. Приложение на Linux/macOS
+
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-
-cp .env.example .env          # пропишите DATABASE_URL
-createdb bank                 # или создайте БД вручную
-python seed.py                # создаёт таблицы и наполняет данными
-python app.py                 # http://localhost:5000
+python seed.py
+python app.py
 ```
 
-Проверка: `curl "http://localhost:5000/api/overview?user=0&period=M"`
+Проверка (в отдельном окне):
+`curl "http://localhost:5000/api/overview?user=0&period=M"`
+
+### Своя база (без Docker)
+
+Если поднимаете PostgreSQL сами, создайте базу `bank` и укажите строку
+подключения через переменную окружения `DATABASE_URL` **до** запуска (файл
+`.env` приложение само не читает):
+
+```powershell
+# Windows PowerShell
+$env:DATABASE_URL = "postgresql+psycopg://postgres:ВАШ_ПАРОЛЬ@localhost:5432/bank"
+```
+
+```bash
+# Linux/macOS
+export DATABASE_URL="postgresql+psycopg://postgres:ВАШ_ПАРОЛЬ@localhost:5432/bank"
+```
+
+### Если что-то не запускается
+
+- `ModuleNotFoundError: No module named 'flask'` — не активирован venv. Признак:
+  в приглашении PowerShell нет префикса `(.venv)`. Выполните
+  `.\.venv\Scripts\Activate.ps1` в этом окне.
+- `404 user или period не найдены` — база пустая или сервер смотрит не в ту БД.
+  Убедитесь, что контейнер поднят, и заново выполните `python seed.py` (он
+  пересоздаёт таблицы). Пользователи нумеруются с `0`, как ждёт фронт.
+- Ошибка подключения (`connection refused` / `password authentication failed`) —
+  не запущен PostgreSQL или не совпадает пароль. Проверьте `docker ps` и
+  `DATABASE_URL`.
 
 Порт 5000 совпадает с `server.proxy` во фронте (`vite.config.js`), поэтому в dev
 фронт и бэк работают на одном origin и CORS не нужен. Если бэкенд крутится на
