@@ -2,10 +2,17 @@
 Создаёт таблицы и наполняет БД данными, повторяющими моки фронтенда.
 Запуск:  python seed.py
 """
-
-from app import (
-    User, Bank, DebitCard, Deposit, SavingsAccount, MinBalanceAccount, CreditCard, Loan, Period, app, db
-)
+from run import create_app
+from app.extensions import db
+from app.models.user import User
+from app.models.bank import Bank
+from app.models.debit_card import DebitCard
+from app.models.deposit import Deposit
+from app.models.saving_account import SavingsAccount
+from app.models.minimum_balance_account import MinimumBalanceAccount
+from app.models.credit_card import CreditCard
+from app.models.loan import Loan
+from app.models.period import Period
 
 USERS = [
     {"name": "Симанин Антон", "initials": "СА", "balance": 3000000.00, "mult": 1.00},
@@ -363,6 +370,7 @@ PERIODS = [
     },
 ]
 
+app = create_app()
 
 def seed():
     with app.app_context():
@@ -381,7 +389,9 @@ def seed():
 
         db.session.add_all(SavingsAccount(**saving_account) for saving_account in SAVINGS_ACCOUNTS)
 
-        db.session.add_all(MinBalanceAccount(**min_balance_account) for min_balance_account in MIN_BALANCE_ACCOUNTS)
+        db.session.add_all(
+            MinimumBalanceAccount(**minimum_balance_account) for minimum_balance_account in MIN_BALANCE_ACCOUNTS
+        )
 
         db.session.add_all(CreditCard(**c_card) for c_card in CREDIT_CARDS)
 
