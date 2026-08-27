@@ -13,8 +13,8 @@ class DebitCard(db.Model):
     balance_usd = db.Column(db.Numeric(14,2), nullable=False)
     balance_eur = db.Column(db.Numeric(14,2), nullable=False)
     cashback = db.Column(db.Numeric(14,2), nullable=False)
-    expiration_date = db.Column(db.Date, nullable=False)
-    record_date = db.Column(db.Date, nullable=False)
+    expiration_date = db.Column(db.DateTime, nullable=False)
+    record_date = db.Column(db.DateTime, nullable=False)
 
     __table_args__ = (
         db.CheckConstraint(

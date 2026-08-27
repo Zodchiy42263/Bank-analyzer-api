@@ -14,11 +14,11 @@ class CreditCard(db.Model):
     balance_eur = db.Column(db.Numeric(14,2), nullable=False)
     credit_limit = db.Column(db.Numeric(14,2), nullable=False)
     debt = db.Column(db.Numeric(14,2), nullable=False)
-    nearest_debt_date = db.Column(db.Date, nullable=False)
-    last_debt_date = db.Column(db.Date, nullable=False)
+    nearest_debt_date = db.Column(db.DateTime, nullable=False)
+    last_debt_date = db.Column(db.DateTime, nullable=False)
     cashback = db.Column(db.Numeric(14,2), nullable=False)
-    expiration_date = db.Column(db.Date, nullable=False)
-    record_date = db.Column(db.Date, nullable=False)
+    expiration_date = db.Column(db.DateTime, nullable=False)
+    record_date = db.Column(db.DateTime, nullable=False)
 
     __table_args__ = (
         db.CheckConstraint(

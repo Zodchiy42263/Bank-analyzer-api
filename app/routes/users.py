@@ -15,7 +15,6 @@ def accounts():
                 "id": u.id,
                 "name": u.name,
                 "initials": u.initials,
-                "balance": float(u.balance),
             }
             for u in users
         ]

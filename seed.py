@@ -2,6 +2,9 @@
 Создаёт таблицы и наполняет БД данными, повторяющими моки фронтенда.
 Запуск:  python seed.py
 """
+import time
+import subprocess
+
 from run import create_app
 from app.extensions import db
 from app.models.user import User
@@ -12,7 +15,23 @@ from app.models.saving_account import SavingsAccount
 from app.models.minimum_balance_account import MinimumBalanceAccount
 from app.models.credit_card import CreditCard
 from app.models.loan import Loan
+from app.models.transaction import Transaction
 from app.models.period import Period
+
+transactions_types = {
+    "income": [
+        "salary",
+        "deposit_interest",
+        "savings_account_interest",
+        "coupons",
+        "dividends",
+        "incoming_transfers"
+    ],
+    "expense": [
+        "outgoing_transfers",
+        "expenses"
+    ]
+}
 
 USERS = [
     {"name": "Симанин Антон", "initials": "СА", "balance": 3000000.00, "mult": 1.00},
@@ -38,7 +57,7 @@ DEBIT_CARDS = [
         "balance_usd": 2318.13,
         "balance_eur": 1994.09,
         "cashback": 8.50,
-        "expiration_date": "2027-03-15",
+        "expiration_date": "2027-03-15 00:00:00",
         "record_date": "2026-08-20",
     },
     {
@@ -50,7 +69,7 @@ DEBIT_CARDS = [
         "balance_usd": 4060.00,
         "balance_eur": 3492.47,
         "cashback": 11.20,
-        "expiration_date": "2028-01-10",
+        "expiration_date": "2028-01-10 00:00:00",
         "record_date": "2026-08-21",
     },
     {
@@ -62,7 +81,7 @@ DEBIT_CARDS = [
         "balance_usd": 910.63,
         "balance_eur": 783.34,
         "cashback": 6.75,
-        "expiration_date": "2027-09-25",
+        "expiration_date": "2027-09-25 00:00:00",
         "record_date": "2026-08-22",
     },
     {
@@ -74,7 +93,7 @@ DEBIT_CARDS = [
         "balance_usd": 1953.75,
         "balance_eur": 1680.65,
         "cashback": 14.30,
-        "expiration_date": "2029-05-30",
+        "expiration_date": "2029-05-30 00:00:00",
         "record_date": "2026-08-23",
     },
 ]
@@ -87,8 +106,8 @@ DEPOSITS = [
         "amount": 500000.00,
         "term": 12,
         "interest_rate": 15.50,
-        "start_date": "2026-02-15",
-        "end_date": "2027-02-15",
+        "start_date": "2026-02-15 00:00:00",
+        "end_date": "2027-02-15 00:00:00",
         "capitalization": True,
     },
     {
@@ -98,8 +117,8 @@ DEPOSITS = [
         "amount": 250000.00,
         "term": 6,
         "interest_rate": 14.75,
-        "start_date": "2026-06-10",
-        "end_date": "2026-12-10",
+        "start_date": "2026-06-10 00:00:00",
+        "end_date": "2026-12-10 00:00:00",
         "capitalization": False,
     },
     {
@@ -109,8 +128,8 @@ DEPOSITS = [
         "amount": 800000.00,
         "term": 24,
         "interest_rate": 13.25,
-        "start_date": "2026-01-20",
-        "end_date": "2028-01-20",
+        "start_date": "2026-01-20 00:00:00",
+        "end_date": "2028-01-20 00:00:00",
         "capitalization": True,
     },
     {
@@ -120,8 +139,8 @@ DEPOSITS = [
         "amount": 350000.00,
         "term": 3,
         "interest_rate": 16.00,
-        "start_date": "2026-08-05",
-        "end_date": "2026-11-05",
+        "start_date": "2026-08-05 00:00:00",
+        "end_date": "2026-11-05 00:00:00",
         "capitalization": False,
     },
 ]
@@ -165,7 +184,7 @@ MIN_BALANCE_ACCOUNTS = [
         "balance": 600000.00,
         "interest_rate": 14.00,
         "minimum_balance": 100000.00,
-        "deposit_date": "2026-01-20",
+        "deposit_date": "2026-01-20 00:00:00",
     },
     {
         "user_id": 1,
@@ -174,7 +193,7 @@ MIN_BALANCE_ACCOUNTS = [
         "balance": 950000.00,
         "interest_rate": 15.25,
         "minimum_balance": 200000.00,
-        "deposit_date": "2025-11-10",
+        "deposit_date": "2025-11-10 00:00:00",
     },
     {
         "user_id": 0,
@@ -183,7 +202,7 @@ MIN_BALANCE_ACCOUNTS = [
         "balance": 420000.00,
         "interest_rate": 12.75,
         "minimum_balance": 50000.00,
-        "deposit_date": "2026-03-05",
+        "deposit_date": "2026-03-05 00:00:00",
     },
     {
         "user_id": 0,
@@ -192,7 +211,7 @@ MIN_BALANCE_ACCOUNTS = [
         "balance": 1500000.00,
         "interest_rate": 13.50,
         "minimum_balance": 300000.00,
-        "deposit_date": "2024-09-18",
+        "deposit_date": "2024-09-18 00:00:00",
     },
 ]
 
@@ -207,11 +226,11 @@ CREDIT_CARDS = [
         "balance_eur": 1344.09,
         "credit_limit": 209750.00,
         "debt": 84750.00,
-        "nearest_debt_date": "2026-09-15",
-        "last_debt_date": "2026-10-06",
+        "nearest_debt_date": "2026-09-15 00:00:00",
+        "last_debt_date": "2026-10-06 00:00:00",
         "cashback": 7.50,
-        "expiration_date": "2029-04-30",
-        "record_date": "2026-08-25",
+        "expiration_date": "2029-04-30 00:00:00",
+        "record_date": "2026-08-25 00:00:00",
     },
     {
         "user_id": 0,
@@ -223,11 +242,11 @@ CREDIT_CARDS = [
         "balance_eur": 519.35,
         "credit_limit": 81080.50,
         "debt": 32780.50,
-        "nearest_debt_date": "2026-09-10",
-        "last_debt_date": "2026-09-30",
+        "nearest_debt_date": "2026-09-10 00:00:00",
+        "last_debt_date": "2026-09-30 00:00:00",
         "cashback": 5.00,
-        "expiration_date": "2028-11-20",
-        "record_date": "2026-08-25",
+        "expiration_date": "2028-11-20 00:00:00",
+        "record_date": "2026-08-25 00:00:00",
     },
     {
         "user_id": 1,
@@ -239,11 +258,11 @@ CREDIT_CARDS = [
         "balance_eur": 2258.06,
         "credit_limit": 406450.00,
         "debt": 196450.00,
-        "nearest_debt_date": "2026-09-20",
-        "last_debt_date": "2026-10-12",
+        "nearest_debt_date": "2026-09-20 00:00:00",
+        "last_debt_date": "2026-10-12 00:00:00",
         "cashback": 10.00,
-        "expiration_date": "2030-02-28",
-        "record_date": "2026-08-25",
+        "expiration_date": "2030-02-28 00:00:00",
+        "record_date": "2026-08-25 00:00:00",
     },
     {
         "user_id": 1,
@@ -255,11 +274,11 @@ CREDIT_CARDS = [
         "balance_eur": 822.58,
         "credit_limit": 118600.00,
         "debt": 42100.00,
-        "nearest_debt_date": "2026-09-05",
-        "last_debt_date": "2026-09-26",
+        "nearest_debt_date": "2026-09-05 00:00:00",
+        "last_debt_date": "2026-09-26 00:00:00",
         "cashback": 3.50,
-        "expiration_date": "2027-12-15",
-        "record_date": "2026-08-25",
+        "expiration_date": "2027-12-15 00:00:00",
+        "record_date": "2026-08-25 00:00:00",
     },
 ]
 
@@ -370,6 +389,52 @@ PERIODS = [
     },
 ]
 
+TRANSACTIONS = [
+    {
+        "user_id": 0,
+        "bank_id": 3,
+        "record_date": "2026-08-27 02:30:00",
+        "amount": 1450.00,
+        "transaction_type": transactions_types["income"][0]
+    },
+    {
+        "user_id": 0,
+        "bank_id": 1,
+        "record_date": "2026-08-27 06:40:14",
+        "amount": 450.00,
+        "transaction_type": transactions_types["expense"][1]
+    },
+    {
+        "user_id": 0,
+        "bank_id": 5,
+        "record_date": "2026-08-27 11:05:43",
+        "amount": 516.23,
+        "transaction_type": transactions_types["income"][4]
+    },
+    {
+        "user_id": 0,
+        "bank_id": 4,
+        "record_date": "2026-08-27 14:29:42",
+        "amount": 1470.17,
+        "transaction_type": transactions_types["expense"][0]
+    },
+    {
+        "user_id": 0,
+        "bank_id": 2,
+        "record_date": "2026-08-27 17:53:46",
+        "amount": 700.60,
+        "transaction_type": transactions_types["income"][3]
+    },
+    {
+        "user_id": 0,
+        "bank_id": 0,
+        "record_date": "2026-08-27 23:06:54",
+        "amount": 7000.00,
+        "transaction_type": transactions_types["income"][1]
+    },
+]
+
+
 app = create_app()
 
 def seed():
@@ -399,9 +464,13 @@ def seed():
 
         db.session.add_all(Period(**period) for period in PERIODS)
 
+        db.session.add_all(Transaction(**transaction) for transaction in TRANSACTIONS)
+
         db.session.commit()
         print(f"OK: {len(USERS)} пользователей, {len(PERIODS)} периодов.")
 
 
 if __name__ == "__main__":
+    subprocess.run("docker start bank-pg")
+    time.sleep(2)
     seed()

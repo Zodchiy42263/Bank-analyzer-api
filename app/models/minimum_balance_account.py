@@ -11,4 +11,4 @@ class MinimumBalanceAccount(db.Model):
     balance = db.Column(db.Numeric(14, 2), nullable=False)
     interest_rate = db.Column(db.Numeric(5, 2), nullable=False)
     minimum_balance = db.Column(db.Numeric(14, 2), nullable=False)
-    deposit_date = db.Column(db.Date, nullable=False)
+    deposit_date = db.Column(db.DateTime, nullable=False)

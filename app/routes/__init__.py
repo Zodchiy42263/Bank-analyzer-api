@@ -7,6 +7,7 @@ from app.routes.minimum_balance_accounts import minimum_balance_accounts_bp
 from app.routes.credit_cards import credit_cards_bp
 from app.routes.loans import loans_bp
 from app.routes.overviews import overview_bp
+from app.routes.transactions import transactions_bp
 
 BLUEPRINTS = (
     users_bp,
@@ -18,4 +19,5 @@ BLUEPRINTS = (
     credit_cards_bp,
     loans_bp,
     overview_bp,
+    transactions_bp,
 )

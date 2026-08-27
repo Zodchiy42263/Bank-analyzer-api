@@ -11,6 +11,6 @@ class Deposit(db.Model):
     amount = db.Column(db.Numeric(14,2), nullable=False)
     term = db.Column(db.SmallInteger, nullable=False)
     interest_rate = db.Column(db.Numeric(5,2), nullable=False)
-    start_date = db.Column(db.Date, nullable=False)
-    end_date = db.Column(db.Date, nullable=False)
+    start_date = db.Column(db.DateTime, nullable=False)
+    end_date = db.Column(db.DateTime, nullable=False)
     capitalization = db.Column(db.Boolean, nullable=False)
