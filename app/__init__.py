@@ -25,9 +25,9 @@ load_dotenv()
 
 def create_app():
     app = Flask(__name__)
-    app.secret_key = "your-secret-key"
     app.json.sort_keys = False
     
+    app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-insecure-change-me")
     app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
         "DATABASE_URL",
         "postgresql+psycopg://postgres:postgres@localhost:5432/bank",
