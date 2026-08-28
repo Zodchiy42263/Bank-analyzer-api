@@ -5,7 +5,7 @@ class CreditCard(db.Model):
     __tablename__ = "credit_cards"
 
     id = db.Column(db.SmallInteger, db.Identity(start=0,  minvalue=0), primary_key=True)
-    user_id = db.Column(db.SmallInteger, db.ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
+    user_id = db.Column(db.SmallInteger, db.ForeignKey("accounts.id", ondelete="RESTRICT"), nullable=False)
     bank_id = db.Column(db.SmallInteger, db.ForeignKey("banks.id", ondelete="RESTRICT"), nullable=False)
     account_name = db.Column(db.Text, nullable=False)
     account_number = db.Column(db.String(20), nullable=False)

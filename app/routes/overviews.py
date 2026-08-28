@@ -21,7 +21,7 @@ ASSET_BREAKDOWN = [
 
 @overview_bp.get("/api/overview")
 def overview() -> Response:
-    user_id = session["user_id"]
+    user_id = session.get("account_id")
     period_key = request.args.get("period", type=str)
     if user_id is None or not period_key:
         abort(400, "user и period обязательны")

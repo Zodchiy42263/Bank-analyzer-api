@@ -5,7 +5,6 @@ from app.models.account import Account
 
 accounts_bp = Blueprint("accounts", __name__)
 
-
 @accounts_bp.get("/api/accounts")
 def accounts() -> Response:
     """Эндпоинт для получения списка аккаунтов.
@@ -33,6 +32,6 @@ def account() -> Response:
         Response: Статус назначения пользователя.
     """
     data = request.get_json()
-    session["user_id"] = data["user_id"]
+    session["account_id"] = data["account_id"]
 
     return jsonify({"status": "connected"})
