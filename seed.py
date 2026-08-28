@@ -49,7 +49,7 @@ BANKS = [
 
 DEBIT_CARDS = [
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 0,
         "account_name": "Повседневный",
         "account_number": "40817810300006667778",
@@ -61,7 +61,7 @@ DEBIT_CARDS = [
         "record_date": "2026-08-20",
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 1,
         "account_name": "Зарплатный",
         "account_number": "40817810300007778889",
@@ -73,7 +73,7 @@ DEBIT_CARDS = [
         "record_date": "2026-08-21",
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 2,
         "account_name": "Покупки",
         "account_number": "40817810300008889990",
@@ -85,7 +85,7 @@ DEBIT_CARDS = [
         "record_date": "2026-08-22",
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 3,
         "account_name": "Путешествия",
         "account_number": "40817810300009990001",
@@ -100,7 +100,7 @@ DEBIT_CARDS = [
 
 DEPOSITS = [
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 0,
         "deposit_name": "Надёжный доход",
         "amount": 500000.00,
@@ -111,7 +111,7 @@ DEPOSITS = [
         "capitalization": True,
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 1,
         "deposit_name": "Короткий срок",
         "amount": 250000.00,
@@ -122,7 +122,7 @@ DEPOSITS = [
         "capitalization": False,
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 3,
         "deposit_name": "Семейный капитал",
         "amount": 800000.00,
@@ -133,7 +133,7 @@ DEPOSITS = [
         "capitalization": True,
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 5,
         "deposit_name": "Накопительный вклад",
         "amount": 350000.00,
@@ -147,28 +147,28 @@ DEPOSITS = [
 
 SAVINGS_ACCOUNTS = [
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 1,
         "account_name": "Накопительный счёт",
         "balance": 350000.00,
         "interest_rate": 12.50,
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 1,
         "account_name": "Накопления Плюс",
         "balance": 780000.00,
         "interest_rate": 13.00,
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 2,
         "account_name": "Доходный счёт",
         "balance": 125000.00,
         "interest_rate": 10.50,
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 3,
         "account_name": "Финансовая подушка",
         "balance": 920000.00,
@@ -178,7 +178,7 @@ SAVINGS_ACCOUNTS = [
 
 MIN_BALANCE_ACCOUNTS = [
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 0,
         "account_name": "Стабильный доход",
         "balance": 600000.00,
@@ -187,7 +187,7 @@ MIN_BALANCE_ACCOUNTS = [
         "deposit_date": "2026-01-20 00:00:00",
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 2,
         "account_name": "Накопительный максимум",
         "balance": 950000.00,
@@ -196,7 +196,7 @@ MIN_BALANCE_ACCOUNTS = [
         "deposit_date": "2025-11-10 00:00:00",
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 4,
         "account_name": "Резервный капитал",
         "balance": 420000.00,
@@ -205,7 +205,7 @@ MIN_BALANCE_ACCOUNTS = [
         "deposit_date": "2026-03-05 00:00:00",
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 1,
         "account_name": "Финансовый резерв",
         "balance": 1500000.00,
@@ -217,7 +217,7 @@ MIN_BALANCE_ACCOUNTS = [
 
 CREDIT_CARDS = [
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 0,
         "account_name": "Основная кредитная",
         "account_number": "40817810300012223334",
@@ -233,7 +233,7 @@ CREDIT_CARDS = [
         "record_date": "2026-08-25 00:00:00",
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 1,
         "account_name": "Кредитная для покупок",
         "account_number": "40817810300023334455",
@@ -249,7 +249,7 @@ CREDIT_CARDS = [
         "record_date": "2026-08-25 00:00:00",
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 3,
         "account_name": "Кредитная для путешествий",
         "account_number": "40817810300034445566",
@@ -265,7 +265,7 @@ CREDIT_CARDS = [
         "record_date": "2026-08-25 00:00:00",
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 5,
         "account_name": "Резервная кредитная",
         "account_number": "40817810300045556677",
@@ -284,7 +284,7 @@ CREDIT_CARDS = [
 
 LOANS = [
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 4,
         "contract_number": "LN-2026-0001",
         "amount": 3000000.00,
@@ -293,7 +293,7 @@ LOANS = [
         "overpayment": 6080000.00,
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 1,
         "contract_number": "LN-2025-0042",
         "amount": 1500000.00,
@@ -302,7 +302,7 @@ LOANS = [
         "overpayment": 1660000.00,
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 3,
         "contract_number": "LN-2026-0018",
         "amount": 800000.00,
@@ -311,7 +311,7 @@ LOANS = [
         "overpayment": 510000.00,
     },
     {
-        "user_id": 1,
+        "account_id": 1,
         "bank_id": 0,
         "contract_number": "LN-2024-0137",
         "amount": 4500000.00,
@@ -391,42 +391,42 @@ PERIODS = [
 
 TRANSACTIONS = [
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 3,
         "record_date": "2026-08-27 02:30:00",
         "amount": 1450.00,
         "transaction_type": transactions_types["income"][0]
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 1,
         "record_date": "2026-08-27 06:40:14",
         "amount": 450.00,
         "transaction_type": transactions_types["expense"][1]
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 5,
         "record_date": "2026-08-27 11:05:43",
         "amount": 516.23,
         "transaction_type": transactions_types["income"][4]
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 4,
         "record_date": "2026-08-27 14:29:42",
         "amount": 1470.17,
         "transaction_type": transactions_types["expense"][0]
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 2,
         "record_date": "2026-08-27 17:53:46",
         "amount": 700.60,
         "transaction_type": transactions_types["income"][3]
     },
     {
-        "user_id": 0,
+        "account_id": 0,
         "bank_id": 0,
         "record_date": "2026-08-27 23:06:54",
         "amount": 7000.00,
@@ -442,7 +442,7 @@ def seed():
         db.drop_all()
         db.create_all()
 
-        db.session.add_all(Account(**user) for user in ACCOUNTS)
+        db.session.add_all(Account(**account) for account in ACCOUNTS)
         db.session.flush()
 
         db.session.add_all(Bank(**bank) for bank in BANKS)
