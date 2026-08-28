@@ -1,7 +1,7 @@
-from flask import Blueprint, abort, jsonify, request
+from flask import Blueprint, abort, jsonify, request, Response, session
 
 from app.extensions import db
-from app.models.user import User
+from app.models.account import Account
 from app.models.period import Period
 
 
@@ -15,14 +15,18 @@ ASSET_BREAKDOWN = [
 ]
 
 
+# @overview_bp.get("/api/overview/balance")
+# def get_balance():
+
+
 @overview_bp.get("/api/overview")
-def overview():
-    user_id = request.args.get("user", type=int)
+def overview() -> Response:
+    user_id = session["user_id"]
     period_key = request.args.get("period", type=str)
     if user_id is None or not period_key:
         abort(400, "user и period обязательны")
 
-    user = db.session.get(User, user_id)
+    user = db.session.get(Account, user_id)
     period = db.session.get(Period, period_key)
     if user is None or period is None:
         abort(404, "user или period не найдены")

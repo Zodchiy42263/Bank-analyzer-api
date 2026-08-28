@@ -7,7 +7,7 @@ import subprocess
 
 from run import create_app
 from app.extensions import db
-from app.models.user import User
+from app.models.account import Account
 from app.models.bank import Bank
 from app.models.debit_card import DebitCard
 from app.models.deposit import Deposit
@@ -33,7 +33,7 @@ transactions_types = {
     ]
 }
 
-USERS = [
+ACCOUNTS = [
     {"name": "Симанин Антон", "initials": "СА", "balance": 3000000.00, "mult": 1.00},
     {"name": "Симанина Анастасия", "initials": "СА", "balance": 400000.00, "mult": 1.00},
 ]
@@ -442,7 +442,7 @@ def seed():
         db.drop_all()
         db.create_all()
 
-        db.session.add_all(User(**user) for user in USERS)
+        db.session.add_all(Account(**user) for user in ACCOUNTS)
         db.session.flush()
 
         db.session.add_all(Bank(**bank) for bank in BANKS)
@@ -467,7 +467,7 @@ def seed():
         db.session.add_all(Transaction(**transaction) for transaction in TRANSACTIONS)
 
         db.session.commit()
-        print(f"OK: {len(USERS)} пользователей, {len(PERIODS)} периодов.")
+        print(f"OK: {len(ACCOUNTS)} пользователей, {len(PERIODS)} периодов.")
 
 
 if __name__ == "__main__":

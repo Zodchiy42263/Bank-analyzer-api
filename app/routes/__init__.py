@@ -1,4 +1,4 @@
-from app.routes.users import users_bp
+from app.routes.accounts import accounts_bp
 from app.routes.banks import banks_bp
 from app.routes.debit_cards import debit_card_bp
 from app.routes.deposits import deposits_bp
@@ -10,7 +10,7 @@ from app.routes.overviews import overview_bp
 from app.routes.transactions import transactions_bp
 
 BLUEPRINTS = (
-    users_bp,
+    accounts_bp,
     banks_bp,
     debit_card_bp,
     deposits_bp,
