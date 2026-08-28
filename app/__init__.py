@@ -6,9 +6,11 @@ Bank Analyzer — референс-бэкенд под фронтенд Bank-ana
 моков фронтенда, поэтому графики работают без единой правки в UI.
 
 Эндпоинты:
-    GET /api/accounts
-    GET /api/overview?user=<id>&period=<D|N|M|K|G|V>
-    GET /api/health
+    GET  /api/accounts
+    POST /api/account
+    GET  /api/overview/balance
+    GET  /api/overview/charts?period=<D|N|M|K|G|V>
+    GET  /api/health
 """
 import os
 

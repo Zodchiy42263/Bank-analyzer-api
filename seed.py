@@ -34,8 +34,8 @@ transactions_types = {
 }
 
 ACCOUNTS = [
-    {"name": "Симанин Антон", "initials": "СА", "balance": 3000000.00, "mult": 1.00},
-    {"name": "Симанина Анастасия", "initials": "СА", "balance": 400000.00, "mult": 1.00},
+    {"name": "Симанин Антон", "initials": "СА", "mult": 1.00},
+    {"name": "Симанина Анастасия", "initials": "СА", "mult": 1.00},
 ]
 
 BANKS = [
