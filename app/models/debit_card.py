@@ -10,6 +10,7 @@ class DebitCard(db.Model):
     account_name = db.Column(db.Text, nullable=False)
     account_number = db.Column(db.String(20), nullable=False)
     balance_rub = db.Column(db.Numeric(14,2), nullable=False)
+    balance = db.synonym("balance_rub")
     balance_usd = db.Column(db.Numeric(14,2), nullable=False)
     balance_eur = db.Column(db.Numeric(14,2), nullable=False)
     cashback = db.Column(db.Numeric(14,2), nullable=False)
