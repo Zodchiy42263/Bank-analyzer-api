@@ -9,5 +9,6 @@ dependencies = [
     "flask>=3.0",
     "flask-sqlalchemy>=3.1",
     "psycopg[binary]>=3.1",
+    "pydantic>=2.13.5",
     "requests>=2.34.2",
 ]
