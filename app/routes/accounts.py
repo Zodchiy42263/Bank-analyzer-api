@@ -1,9 +1,12 @@
-from flask import request, session, Blueprint, jsonify, Response
+from flask import request, session, Blueprint, jsonify, Response, abort
 
 from app.extensions import db
 from app.models.account import Account
+from app.schemas.session import SessionRequests
+from app.utils.validation import validate_data
 
 accounts_bp = Blueprint("accounts", __name__)
+
 
 @accounts_bp.get("/api/accounts")
 def accounts() -> Response:
@@ -12,17 +15,18 @@ def accounts() -> Response:
     Returns:
         Response: Список аккаунтов в формате JSON.
     """
-    users = Account.query.order_by(Account.id).all()
+    accounts = Account.query.order_by(Account.id).all()
     return jsonify(
         [
             {
-                "id": u.id,
-                "name": u.name,
-                "initials": u.initials,
+                "id": account.id,
+                "account_name": account.account_name,
+                "initials": account.initials,
             }
-            for u in users
+            for account in accounts
         ]
     )
+
 
 @accounts_bp.post("/api/account")
 def account() -> Response:
@@ -31,7 +35,12 @@ def account() -> Response:
     Returns:
         Response: Статус назначения пользователя.
     """
-    data = request.get_json()
-    session["account_id"] = data["account_id"]
+    validated_data = validate_data(SessionRequests, request.get_json())
+
+    account = db.session.get(Account, validated_data.account_id)
+    if not account:
+        abort(404, "Аккаунт не найден")
+
+    session["account_id"] = validated_data.account_id
 
     return jsonify({"status": "connected"})

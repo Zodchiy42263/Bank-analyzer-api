@@ -2,9 +2,19 @@ from flask import Blueprint, abort, jsonify, request, Response, session
 
 from app.extensions import db
 from app.models.account import Account
+from app.models.debit_card import DebitCard
+from app.models.deposit import Deposit
+from app.models.saving_account import SavingsAccount
+from app.models.minimum_balance_account import MinimumBalanceAccount
+from app.models.loan import Loan
+from app.models.credit_card import CreditCard
 from app.models.period import Period
+from app.schemas.overview import ChartsQuery
+from app.utils.validation import validate_data
+from app.utils.account_validation import _current_account
 
-
+total_balance_models = (DebitCard, Deposit, SavingsAccount, MinimumBalanceAccount)
+debt_models = (Loan, CreditCard)
 overview_bp = Blueprint("overview", __name__)
 
 # Разбивка активов: доля от баланса + цвет (как в моке фронтенда).
@@ -14,53 +24,38 @@ ASSET_BREAKDOWN = [
     ("Инвестиции", 0.30, "hsl(210, 35%, 55%)"),
 ]
 
-# TODO: временные константы для заглушки баланса. Удалить вместе с ней.
-PLACEHOLDER_BALANCE = 482340.00
-PLACEHOLDER_DEBT = 15200.00
 
-
-def _current_user() -> Account:
-    """Пользователь из сессии (ставится в POST /api/account).
-
-    Returns:
-        Account: Текущий пользователь.
-    """
-    user_id = session.get("account_id")
-    if user_id is None:
-        abort(400, "сначала выберите пользователя: POST /api/account")
-
-    user = db.session.get(Account, user_id)
-    if user is None:
-        abort(404, "user не найден")
-
-    return user
-
-
-def calc_balance(user: Account) -> dict[str, float]:
+def calc_balance(account_id: Account) -> dict[str, float]:
     """Считает общий и чистый баланс пользователя.
-
-    TODO: ЗАГЛУШКА. Здесь должен быть реальный расчёт: баланс собирается
-    из таблиц с деньгами (debit_cards, savings_accounts,
-    minimum_balance_accounts, deposits), чистый баланс — за вычетом
-    задолженности (loans, credit_cards). Никакой колонки balance
-    в таблице accounts больше нет.
+    Расчёт баланс собирается из таблиц с деньгами;
+    Чистый баланс — за вычетом задолженности.
 
     Args:
-        user (Account): Пользователь, для которого считается баланс.
+        account_id (Account): Пользователь, для которого считается баланс.
 
     Returns:
-        dict[str, float]: Ключи `balance` и `netBalance`.
+        dict[str, float]: Ключи 'balance' и 'net_balance'.
     """
-    mult = float(user.mult)
-    balance = PLACEHOLDER_BALANCE * mult
-    net_balance = balance - PLACEHOLDER_DEBT * mult
+    total_balance = 0
+    debt = 0
+    for model in total_balance_models:
+        total_balance += db.session.query(
+            db.func.sum(model.balance).filter(model.account_id == account_id)
+        ).scalar()
 
-    return {"balance": balance, "netBalance": net_balance}
+    for model in debt_models:
+        debt += db.session.query(
+            db.func.sum(model.balance).filter(model.account_id == account_id)
+        ).scalar()
+
+    net_balance = total_balance - debt
+
+    return {"total_balance": total_balance, "net_balance": net_balance}
 
 
 @overview_bp.get("/api/overview/balance")
 def balance() -> Response:
-    """Эндпоинт для получения баланса и чистого баланса пользователя.
+    """Эндпоинт для получения общего баланса и чистого баланса пользователя.
 
     Второй шаг после POST /api/account. Результат этого запроса —
     источник баланса и для карточки, и для запроса графиков.
@@ -68,9 +63,9 @@ def balance() -> Response:
     Returns:
         Response: Общий и чистый баланс в формате JSON.
     """
-    user = _current_user()
+    account_id = _current_account().id
 
-    return jsonify(calc_balance(user))
+    return jsonify(calc_balance(account_id))
 
 
 @overview_bp.get("/api/overview/charts")
@@ -83,17 +78,15 @@ def charts() -> Response:
     Returns:
         Response: Ряды графиков, итоги за период и разбивка активов.
     """
-    period_key = request.args.get("period", type=str)
-    if not period_key:
-        abort(400, "period обязателен")
+    validated_data = validate_data(ChartsQuery, request.args.to_dict())
 
-    user = _current_user()
-    period = db.session.get(Period, period_key)
+    account = _current_account()
+    period = db.session.get(Period, validated_data.period)
     if period is None:
         abort(404, "period не найден")
 
-    mult = float(user.mult)
-    balance = calc_balance(user)["balance"]
+    mult = float(account.mult)
+    balance = calc_balance(account.id)["total_balance"]
     debt = float(period.debt) * mult
 
     # Кредиторка в разбивке активов берётся из годового долга (как в моке).
@@ -101,7 +94,7 @@ def charts() -> Response:
     year_debt = float(year.debt) * mult
 
     assets = [
-        {"label": label, "amount": balance * share, "color": color}
+        {"label": label, "amount": float(balance) * share, "color": color}
         for (label, share, color) in ASSET_BREAKDOWN
     ]
     assets.append(
