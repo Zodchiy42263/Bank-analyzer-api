@@ -17,34 +17,20 @@ from app.models.credit_card import CreditCard
 from app.models.loan import Loan
 from app.models.transaction import Transaction
 from app.models.period import Period
-
-transactions_types = {
-    "income": [
-        "salary",
-        "deposit_interest",
-        "savings_account_interest",
-        "coupons",
-        "dividends",
-        "incoming_transfers"
-    ],
-    "expense": [
-        "outgoing_transfers",
-        "expenses"
-    ]
-}
+from app.constants.transactions import TRANSACTION_TYPES
 
 ACCOUNTS = [
-    {"name": "Симанин Антон", "initials": "СА", "mult": 1.00},
-    {"name": "Симанина Анастасия", "initials": "СА", "mult": 1.00},
+    {"account_name": "Симанин Антон", "initials": "СА", "mult": 1.00},
+    {"account_name": "Симанина Анастасия", "initials": "СА", "mult": 1.00},
 ]
 
 BANKS = [
-    {"name": "Озон"},
-    {"name": "Яндекс"},
-    {"name": "Сбер"},
-    {"name": "Альфа"},
-    {"name": "ВТБ"},
-    {"name": "Т-Банк"},
+    {"bank_name": "Озон"},
+    {"bank_name": "Яндекс"},
+    {"bank_name": "Сбер"},
+    {"bank_name": "Альфа"},
+    {"bank_name": "ВТБ"},
+    {"bank_name": "Т-Банк"},
 ]
 
 DEBIT_CARDS = [
@@ -329,8 +315,7 @@ PERIODS = [
         "income_shape": [0.32, 0.55, 0.38, 0.72, 0.9, 0.61],
         "expense_shape": [0.48, 0.4, 0.58, 0.44, 0.62, 0.5],
         "debt_shape": [0.55, 0.5, 0.58, 0.6, 0.62, 0.65],
-        "income_max": 7000.00,
-        "expense_max": 5000.00,
+        "income_max": 7000.00, "expense_max": 5000.00,
         "income_total": 6420.35, "expense_total": 4380.90, "debt": 4200.00,
     },
     {
@@ -392,45 +377,151 @@ PERIODS = [
 TRANSACTIONS = [
     {
         "account_id": 0,
-        "bank_id": 3,
-        "record_date": "2026-08-27 02:30:00",
-        "amount": 1450.00,
-        "transaction_type": transactions_types["income"][0]
-    },
-    {
-        "account_id": 0,
-        "bank_id": 1,
-        "record_date": "2026-08-27 06:40:14",
-        "amount": 450.00,
-        "transaction_type": transactions_types["expense"][1]
-    },
-    {
-        "account_id": 0,
-        "bank_id": 5,
-        "record_date": "2026-08-27 11:05:43",
-        "amount": 516.23,
-        "transaction_type": transactions_types["income"][4]
-    },
-    {
-        "account_id": 0,
-        "bank_id": 4,
-        "record_date": "2026-08-27 14:29:42",
-        "amount": 1470.17,
-        "transaction_type": transactions_types["expense"][0]
-    },
-    {
-        "account_id": 0,
-        "bank_id": 2,
-        "record_date": "2026-08-27 17:53:46",
-        "amount": 700.60,
-        "transaction_type": transactions_types["income"][3]
+        "bank_id": 0,
+        "record_date": "2014-09-02 02:30:00",
+        "amount": 1050.00,
+        "type": TRANSACTION_TYPES["income"][3]
     },
     {
         "account_id": 0,
         "bank_id": 0,
-        "record_date": "2026-08-27 23:06:54",
+        "record_date": "2017-12-31 23:30:00",
+        "amount": 4650.00,
+        "type": TRANSACTION_TYPES["income"][3]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 0,
+        "record_date": "2021-02-01 14:07:00",
+        "amount": 1250.00,
+        "type": TRANSACTION_TYPES["income"][3]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 0,
+        "record_date": "2026-09-02 02:30:00",
+        "amount": 3050.00,
+        "type": TRANSACTION_TYPES["income"][3]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 4,
+        "record_date": "2026-09-02 11:05:43",
+        "amount": 626.23,
+        "type": TRANSACTION_TYPES["income"][0]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 2,
+        "record_date": "2026-09-02 17:53:46",
+        "amount": 700.60,
+        "type": TRANSACTION_TYPES["income"][4]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 0,
+        "record_date": "2026-09-02 23:06:54",
+        "amount": 7000.10,
+        "type": TRANSACTION_TYPES["income"][1]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 4,
+        "record_date": "2026-09-02 04:06:54",
+        "amount": 15000.00,
+        "type": TRANSACTION_TYPES["income"][6]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 3,
+        "record_date": "2026-09-02 06:40:14",
+        "amount": 1724.50,
+        "type": TRANSACTION_TYPES["expense"][1]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 2,
+        "record_date": "2026-09-02 14:36:04",
+        "amount": 368.50,
+        "type": TRANSACTION_TYPES["expense"][0]
+    },
+
+    {
+        "account_id": 0,
+        "bank_id": 5,
+        "record_date": "2026-09-02 21:29:42",
+        "amount": 456.17,
+        "type": TRANSACTION_TYPES["expense"][1]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 3,
+        "record_date": "2026-09-03 02:30:00",
+        "amount": 1450.00,
+        "type": TRANSACTION_TYPES["income"][0]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 5,
+        "record_date": "2026-09-03 11:05:43",
+        "amount": 516.23,
+        "type": TRANSACTION_TYPES["income"][4]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 2,
+        "record_date": "2026-09-03 17:53:46",
+        "amount": 700.60,
+        "type": TRANSACTION_TYPES["income"][3]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 0,
+        "record_date": "2026-09-03 23:06:54",
         "amount": 7000.00,
-        "transaction_type": transactions_types["income"][1]
+        "type": TRANSACTION_TYPES["income"][1]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 4,
+        "record_date": "2026-09-03 03:15:54",
+        "amount": 100000.00,
+        "type": TRANSACTION_TYPES["income"][6]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 1,
+        "record_date": "2026-09-03 05:55:04",
+        "amount": 450.00,
+        "type": TRANSACTION_TYPES["expense"][1]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 4,
+        "record_date": "2026-09-03 12:30:04",
+        "amount": 259.00,
+        "type": TRANSACTION_TYPES["expense"][0]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 4,
+        "record_date": "2026-09-04 02:29:42",
+        "amount": 1470.17,
+        "type": TRANSACTION_TYPES["expense"][0]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 1,
+        "record_date": "2026-09-05 07:29:42",
+        "amount": 175.17,
+        "type": TRANSACTION_TYPES["expense"][1]
+    },
+    {
+        "account_id": 0,
+        "bank_id": 3,
+        "record_date": "2026-09-05 07:29:42",
+        "amount": 325.47,
+        "type": TRANSACTION_TYPES["income"][4]
     },
 ]
 
