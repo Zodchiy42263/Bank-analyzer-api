@@ -378,21 +378,7 @@ TRANSACTIONS = [
     {
         "account_id": 0,
         "bank_id": 0,
-        "record_date": "2014-09-02 02:30:00",
-        "amount": 1050.00,
-        "type": TRANSACTION_TYPES["income"][3]
-    },
-    {
-        "account_id": 0,
-        "bank_id": 0,
-        "record_date": "2017-12-31 23:30:00",
-        "amount": 4650.00,
-        "type": TRANSACTION_TYPES["income"][3]
-    },
-    {
-        "account_id": 0,
-        "bank_id": 0,
-        "record_date": "2021-02-01 14:07:00",
+        "record_date": "2022-02-01 14:07:00",
         "amount": 1250.00,
         "type": TRANSACTION_TYPES["income"][3]
     },

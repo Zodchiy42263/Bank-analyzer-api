@@ -19,9 +19,7 @@ def get_current_quarter() -> datetime:
 
 now = datetime.now()
 start_of_day = now.replace(hour=0, minute=0, second=0, microsecond=0)
-start_of_week = (
-    now - timedelta(days=now.weekday())
-).replace(
+start_of_week = (now - timedelta(days=now.weekday())).replace(
     hour=0, minute=0, second=0, microsecond=0
 )
 start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
