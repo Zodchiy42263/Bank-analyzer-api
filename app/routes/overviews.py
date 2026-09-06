@@ -50,7 +50,7 @@ def calc_balance(account_id: Account) -> dict[str, float]:
 
     net_balance = total_balance - debt
 
-    return {"total_balance": total_balance, "net_balance": net_balance}
+    return {"total_balance": round(float(total_balance), 2), "net_balance": round(float(net_balance), 2)}
 
 
 @overview_bp.get("/api/overview/balance")
