@@ -7,6 +7,7 @@ from sqlalchemy.engine.row import Row
 from sqlalchemy.sql.selectable import Select
 
 from app.extensions import db
+from app.routes.overviews import calc_balance
 from app.models.transaction import Transaction
 from app.models.account import Account
 from app.models.bank import Bank
@@ -48,7 +49,7 @@ def add_period_filter(command: Select, period: str, account_id: int) -> Select:
     Args:
         command (Select): Команда для получения транзакций.
         period (str): Период, за который надо получить транзакции.
-        account_id (int): Аккаунт, транзакции которого надо получить.
+        account_id (int): Текущий аккаунт.
 
     Returns:
         Select: Команда с фильтром (WHERE).
@@ -110,7 +111,7 @@ def calculate_totals(divided_transactions: dict[list]) -> dict[str, float]:
     }
 
     for key, values in divided_transactions.items():
-        totals[key] = sum([value[1] for value in values])
+        totals[key] = sum([round(float(value[1]), 2) for value in values])
 
     return totals
 
@@ -237,7 +238,28 @@ def aggregate_by_years(
         dict[str, dict]: Обновленный transaction_groups с добавлением переданной транзакции в соответствующие
                          тип и интервал.
     """
-    transaction_groups[transaction_type][str(value[0].year)] += float(value[1])
+    year = value[0].year
+    if str(year) not in transaction_groups[transaction_type]:
+        for t_type in ["income", "expense", "debt"]:
+            transaction_groups[t_type][str(year)] = 0.0
+
+    transaction_groups[transaction_type][str(year)] += float(value[1])
+
+    return transaction_groups
+
+
+def round_money(transaction_groups: dict[str, dict]) -> dict[str, dict]:
+    """Функция приведения сумм транзакций к общему формату с двумя знаками после запятой.
+
+    Args:
+        transaction_groups (dict[str, dict]): Транзакции распределённые по типам и интервалам.
+
+    Returns:
+        dict[str, dict]: Транзакции с отформатированными значениями сумм.
+    """
+    for intervals_amounts in transaction_groups.values():
+        for interval, amount in intervals_amounts.items():
+            intervals_amounts[interval] = round(amount, 2)
 
     return transaction_groups
 
@@ -255,24 +277,27 @@ def aggregate_transactions_by_interval(period: str, divided_transactions: dict[s
     transaction_groups = deepcopy(operations_intervals[period])
 
     for transaction_type, data in divided_transactions.items():
-        for values in data:
+        for intervals_amounts in data:
             if period == "D":
-                transaction_groups = aggregate_by_hours(transaction_groups, transaction_type, values)
+                transaction_groups = aggregate_by_hours(transaction_groups, transaction_type, intervals_amounts)
             elif period == "N":
-                transaction_groups = aggregate_by_days(transaction_groups, transaction_type, values)
+                transaction_groups = aggregate_by_days(transaction_groups, transaction_type, intervals_amounts)
             elif period == "M":
-                transaction_groups = aggregate_by_date_range(transaction_groups, transaction_type, values)
+                transaction_groups = aggregate_by_date_range(transaction_groups, transaction_type, intervals_amounts)
             elif period in ["K", "G"]:
-                transaction_groups = aggregate_by_months(transaction_groups, transaction_type, values)
+                transaction_groups = aggregate_by_months(transaction_groups, transaction_type, intervals_amounts)
             elif period == "V":
-                transaction_groups = aggregate_by_years(transaction_groups, transaction_type, values)
+                transaction_groups = aggregate_by_years(transaction_groups, transaction_type, intervals_amounts)
+
+    transaction_groups = round_money(transaction_groups)
 
     return transaction_groups
 
 
 def build_period_stats(
     period_operations_intervals: dict[str, dict],
-    totals: dict[str, float]
+    totals: dict[str, float],
+    account_id: int
 ) -> dict[str, list | float]:
     """Функция распределения отсортированных данных по транзакциям в шаблон для формирования графика.
     Объединяется с periods_models в generate_chart_data().
@@ -280,32 +305,45 @@ def build_period_stats(
     Args:
         period_operations_intervals (dict[str, dict]): Транзакции распределённые по типам и интервалам.
         totals (dict[str, float]): Суммы доходов, расходов и задолженности за весь период.
+        account_id (int): Текущий аккаунт.
     Returns:
         dict[str, list | float]: Шаблон для формирования графика, с распределёнными суммами транзакций.
     """
     period_stats = {
-        "income_shape": [], "expense_shape": [], "debt_shape": [],
+        "income_shape": [], "expense_shape": [], "debt_shape": [], "profit_shape": [], "profit_share": [],
         "income_max": None, "expense_max": None,
         "income_total": None, "expense_total": None, "debt": None,
     }
-    period_stats["income_shape"] = list(period_operations_intervals["income"].values())
-    period_stats["expense_shape"] = list(period_operations_intervals["expense"].values())
-    period_stats["debt_shape"] = list(period_operations_intervals["debt"].values())
-    period_stats["income_max"] = float(totals["income"]) * 1.2
-    period_stats["expense_max"] = float(totals["expense"]) * 1.2
-    period_stats["income_total"] = float(totals["income"])
-    period_stats["expense_total"] = float(totals["expense"])
-    period_stats["debt"] = float(totals["debt"])
+    total_balance = calc_balance(account_id)["total_balance"]
+
+    for operation_type in period_operations_intervals.keys():
+        period_stats[f"{operation_type}_shape"] = list(period_operations_intervals[operation_type].values())
+
+    for income, expense in zip(period_stats["income_shape"], period_stats["expense_shape"]):
+        profit = income - expense
+        period_stats["profit_shape"].append(round(profit, 2))
+        period_stats["profit_share"].append(round(profit / total_balance, 6))
+
+    period_stats["income_max"] = round(totals["income"] * 1.2, 2)
+    period_stats["expense_max"] = round(totals["expense"] * 1.2, 2)
+    period_stats["income_total"] = totals["income"]
+    period_stats["expense_total"] = totals["expense"]
+    period_stats["debt"] = totals["debt"]
 
     return period_stats
 
 
-def generate_chart_data(period: str, transactions: list[Row]) -> dict[str, str | int | float | list]:
+def generate_chart_data(
+    period: str,
+    transactions: list[Row],
+    account_id: int
+) -> dict[str, str | int | float | list]:
     """Функция заполнения шаблона для составления графика показателей запрошенного периода.
 
     Args:
         period (str): Период, из транзакций которого надо сформировать график.
         transactions (list[Row]): Транзакции для формирования графика.
+        account_id (int): Текущий аккаунт.
 
     Returns:
         dict[str, str | int | float | list]: Шаблона для составления графика.
@@ -314,7 +352,7 @@ def generate_chart_data(period: str, transactions: list[Row]) -> dict[str, str |
     totals = calculate_totals(divided_transactions)
 
     transaction_groups = aggregate_transactions_by_interval(period, divided_transactions)
-    period_stats = build_period_stats(transaction_groups, totals)
+    period_stats = build_period_stats(transaction_groups, totals, account_id)
 
     if period == "V":
         periods_models[period]["axis"] = [year for year in transaction_groups["income"].keys()]
@@ -341,6 +379,6 @@ def get_transactions_chart() -> Response:
     filtered_command = add_period_filter(command, period, account_id)
     transactions = db.session.execute(filtered_command).all()
 
-    chart_data = generate_chart_data(period, transactions)
+    chart_data = generate_chart_data(period, transactions, account_id)
 
     return jsonify(chart_data)
