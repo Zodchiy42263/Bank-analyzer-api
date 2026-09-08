@@ -5,11 +5,12 @@ class CreditCard(db.Model):
     __tablename__ = "credit_cards"
 
     id = db.Column(db.SmallInteger, db.Identity(start=0,  minvalue=0), primary_key=True)
-    user_id = db.Column(db.SmallInteger, db.ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
+    account_id = db.Column(db.SmallInteger, db.ForeignKey("accounts.id", ondelete="RESTRICT"), nullable=False)
     bank_id = db.Column(db.SmallInteger, db.ForeignKey("banks.id", ondelete="RESTRICT"), nullable=False)
     account_name = db.Column(db.Text, nullable=False)
     account_number = db.Column(db.String(20), nullable=False)
     balance_rub = db.Column(db.Numeric(14,2), nullable=False)
+    balance = db.synonym("balance_rub")
     balance_usd = db.Column(db.Numeric(14,2), nullable=False)
     balance_eur = db.Column(db.Numeric(14,2), nullable=False)
     credit_limit = db.Column(db.Numeric(14,2), nullable=False)

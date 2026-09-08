@@ -65,7 +65,7 @@ python app.py
 ```
 
 Проверка (в отдельном окне):
-`curl "http://localhost:5000/api/overview?user=0&period=M"`
+`curl "http://localhost:5000/api/overview/charts?period=M"` (после `POST /api/account`)
 
 ### Своя база (без Docker)
 
@@ -114,22 +114,50 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 
 ```json
 [
-  { "id": 0, "name": "Вы (Иван Соколов)", "initials": "ИС", "balance": 482340.0 }
+  { "id": 0, "name": "Вы (Иван Соколов)", "initials": "ИС" }
 ]
 ```
 
-### `GET /api/overview?user=<id>&period=<D|N|M|K|G|V>`
+Баланса здесь нет и не будет — таблица `accounts` его не хранит.
+
+### `POST /api/account`
+
+Кладёт выбранного пользователя в сессию. Первый запрос в цепочке.
+
+```json
+{ "account_id": 0 }
+```
+
+Ответ: `{ "status": "connected" }`
+
+### `GET /api/overview/balance`
+
+Второй запрос. Считает баланс и чистый баланс по таблицам с деньгами
+и задолженностью (сейчас — заглушка `calc_balance` в
+`app/routes/overviews.py`).
+
+```json
+{
+  "balance": 482340.0,
+  "netBalance": 467140.0
+}
+```
+
+### `GET /api/overview/charts?period=<D|N|M|K|G|V>`
+
+Третий запрос. Доходы, расходы и задолженность (то, что раньше жило
+в блоке общего баланса) отдаются здесь, вместе с рядами графиков.
+Баланс для разбивки активов берётся из расчёта баланса, а не из
+данных аккаунта.
 
 ```json
 {
   "period": "M",
   "datePrefix": "",
   "axis": ["1-5", "6-10", "11-15", "16-20", "21-25", "26-30"],
-  "balance": 482340.0,
-  "debt": 15200.0,
-  "netBalance": 467140.0,
   "income": 178450.9,
   "expense": 129680.45,
+  "debt": 15200.0,
   "incomeShape": [0.4, 0.62, 0.5, 0.78, 0.68, 0.9],
   "expenseShape": [0.5, 0.48, 0.58, 0.52, 0.6, 0.55],
   "debtShape": [0.4, 0.45, 0.5, 0.55, 0.6, 0.65],
@@ -145,11 +173,15 @@ CORS(app, resources={r"/api/*": {"origins": "http://localhost:5173"}})
 }
 ```
 
+Порядок запросов на фронте: `POST /api/account` → `GET /api/overview/balance`
+→ `GET /api/overview/charts`.
+
 Правила формы:
 
 - `*Shape` — нормализованные ряды `0..1` (форма линии графика), длиной как `axis`.
 - `*Max` — масштаб ряда в рублях; реальное значение точки = `shape[i] * max`.
 - `period` — один из `D N M K G V` (день, неделя, месяц, квартал, год, весь период).
+- Пользователь берётся из сессии (`POST /api/account`), а не из query-параметра.
 - Все денежные числа отдавайте как **number**, не строкой. Из PostgreSQL
   `NUMERIC/Decimal` приводите к `float`, иначе `jsonify` вернёт строку и графики
   сломаются.
